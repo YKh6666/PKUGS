@@ -1,0 +1,17 @@
+[
+  {
+    "version": "v1.0",
+    "date": "2026-02-08",
+    "notes": ["Initial release"],
+    "public_download_url": "TODO"
+  },
+  {
+    "version": "v0.9",
+    "date": "2026-01-20",
+    "notes": [
+      "Internal preview metadata cleanup",
+      "Placeholder media bundle refresh"
+    ],
+    "public_download_url": "TODO"
+  }
+]
