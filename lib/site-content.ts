@@ -7,31 +7,41 @@ export type CtaLink = {
 export type HeroContent = {
   title: string;
   subtitle: string;
-  description: string;
   keywords: string[];
   ctas: CtaLink[];
   videoSources: string[];
-  posterSrc: string;
   scrollLabel: string;
+  readability: {
+    globalOverlayOpacity: number;
+    localOverlayOpacity: number;
+    localOverlayWidth: string;
+    localOverlayHeight: string;
+    localOverlayBlur: number;
+    localOverlayGradientStops: {
+      dense: string;
+      medium: string;
+      soft: string;
+      fade: string;
+    };
+    titleTextShadow: string;
+    subtitleTextShadow: string;
+    bodyTextShadow: string;
+  };
   timing: {
-    overlayOpacity: number;
     displayDurationMs: number;
     transitionDurationMs: number;
     fallbackDelayMs: number;
-    titleDelayMs: number;
-    badgeDelayMs: number;
-    ctaDelayMs: number;
+    introDelayMs: number;
     scrollHintDelayMs: number;
     fadeDurationMs: number;
-    riseDistancePx: number;
+    introTranslateY: number;
   };
 };
 
 export type StatItem = {
   title: string;
-  description: string;
-  icon: "map" | "frames" | "route" | "capture" | "terrain" | "badge";
-  value?: string;
+  icon: "map" | "frames" | "route" | "poi" | "storage" | "coverage";
+  value: string;
 };
 
 export type FeatureItem = {
@@ -80,6 +90,16 @@ export type FooterContent = {
 // - /Users/y/PKUGS/video/DJI_20260109164429_0032_D.MP4
 // - /Users/y/PKUGS/video/DJI_20260110170407_0049_D.MP4
 // - /Users/y/PKUGS/video/DJI_20260207104247_0261_D.MP4
+// - /Users/y/PKUGS/video/DJI_20260205175453_0152_D.MP4 (30s-37s)
+// - /Users/y/PKUGS/video/DJI_20260203102803_0023_D.MP4 (10s-17s)
+// - /Users/y/PKUGS/video/DJI_20260205122615_0126_D.MP4 (6s-13s)
+// - /Users/y/PKUGS/video/DJI_20260203170451_0049_D.MP4 (116s-123s)
+// - /Users/y/PKUGS/video/DJI_20260207162803_0014_D.MP4 (46s-53s)
+// - /Users/y/PKUGS/video/DJI_20260104115702_0059_D.MP4 (6s-13s)
+// - /Users/y/PKUGS/video/DJI_20260117163634_0309_D.MP4 (97s-104s)
+// - /Users/y/PKUGS/video/DJI_20260110172830_0053_D.MP4 (2s-9s)
+// - /Users/y/PKUGS/video/DJI_20260112161145_0146_D.MP4 (8s-15s)
+// - /Users/y/PKUGS/video/DJI_20260115165443_0244_D.MP4 (160s-167s)
 // - /Users/y/PKUGS/photo/show/*.png
 // Formal site assets should be referenced from:
 // - public/videos/
@@ -88,8 +108,6 @@ export const heroContent: HeroContent = {
   title: "PKU-GS",
   subtitle:
     "A Gaussian Splatting Compression Dataset for Large-Scale Scene Modeling with UAVs",
-  description:
-    "PKU-GS is a large-scale UAV dataset designed to support reproducible study of Gaussian Splatting compression across complex outdoor scenes.",
   keywords: ["Large-Scale", "UAV Capture", "Compression Benchmark"],
   ctas: [
     { label: "Explore Scenes", href: "#scenes", variant: "primary" },
@@ -100,20 +118,44 @@ export const heroContent: HeroContent = {
     "/videos/dji_20260109164429_0032_d-1080p.mp4",
     "/videos/dji_20260110170407_0049_d-1080p.mp4",
     "/videos/dji_20260207104247_0261_d-1080p.mp4",
+    "/videos/dji_20260205175453_0152_d-30-37-1080p.mp4",
+    "/videos/dji_20260203102803_0023_d-10-17-1080p.mp4",
+    "/videos/dji_20260205122615_0126_d-6-13-1080p.mp4",
+    "/videos/dji_20260203170451_0049_d-116-123-1080p.mp4",
+    "/videos/dji_20260207162803_0014_d-46-53-1080p.mp4",
+    "/videos/dji_20260104115702_0059_d-6-13-1080p.mp4",
+    "/videos/dji_20260117163634_0309_d-97-104-1080p.mp4",
+    "/videos/dji_20260110172830_0053_d-2-9-1080p.mp4",
+    "/videos/dji_20260112161145_0146_d-8-15-1080p.mp4",
+    "/videos/dji_20260115165443_0244_d-160-167-1080p.mp4",
   ],
-  posterSrc: "/images/hero/hero-cover.jpg",
   scrollLabel: "Scroll to continue",
+  readability: {
+    globalOverlayOpacity: 0.2,
+    localOverlayOpacity: 0.17,
+    localOverlayWidth: "min(88vw, 1240px)",
+    localOverlayHeight: "100%",
+    localOverlayBlur: 10,
+    localOverlayGradientStops: {
+      dense: "18%",
+      medium: "38%",
+      soft: "62%",
+      fade: "82%",
+    },
+    titleTextShadow:
+      "0 3px 18px rgba(6, 12, 20, 0.18), 0 1px 7px rgba(6, 12, 20, 0.11)",
+    subtitleTextShadow:
+      "0 2px 14px rgba(6, 12, 20, 0.15), 0 1px 6px rgba(6, 12, 20, 0.09)",
+    bodyTextShadow: "0 1px 14px rgba(6, 12, 20, 0.14)",
+  },
   timing: {
-    overlayOpacity: 0.24,
-    displayDurationMs: 10000,
+    displayDurationMs: 7000,
     transitionDurationMs: 1000,
     fallbackDelayMs: 4000,
-    titleDelayMs: 2000,
-    badgeDelayMs: 2200,
-    ctaDelayMs: 2350,
-    scrollHintDelayMs: 2800,
-    fadeDurationMs: 900,
-    riseDistancePx: 18,
+    introDelayMs: 1820,
+    scrollHintDelayMs: 2620,
+    fadeDurationMs: 980,
+    introTranslateY: 22,
   },
 };
 
@@ -121,35 +163,32 @@ export const stats: StatItem[] = [
   {
     title: "Scenes",
     value: "188",
-    description: "Diverse urban, campus, heritage, and outdoor environments for large-scale modeling.",
     icon: "map",
   },
   {
     title: "Frames",
     value: "8 Million",
-    description: "Dense visual observations collected to support reconstruction, training, and evaluation.",
     icon: "frames",
   },
   {
     title: "Flight Distance",
     value: "1500+ km",
-    description: "Long-range UAV coverage spanning broad scene extents and varied capture trajectories.",
     icon: "route",
   },
   {
-    title: "Standardized UAV Capture",
-    description: "Consistent collection protocol for view coverage, motion patterns, and multi-scene comparability.",
-    icon: "capture",
+    title: "POI Types",
+    value: "7",
+    icon: "poi",
   },
   {
-    title: "Large-Scale Outdoor Scenes",
-    description: "Outdoor geometry, vegetation, roofs, roads, and occlusions represented at practical scale.",
-    icon: "terrain",
+    title: "Total Data Size",
+    value: "20 TB",
+    icon: "storage",
   },
   {
-    title: "Benchmark Ready",
-    description: "Structured splits and evaluation entry points prepared for compression-focused research workflows.",
-    icon: "badge",
+    title: "Coverage",
+    value: "> 8 km²",
+    icon: "coverage",
   },
 ];
 

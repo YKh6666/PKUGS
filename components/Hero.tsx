@@ -8,7 +8,6 @@ import { heroContent } from "@/lib/site-content";
 
 const assetBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const totalHeroVideos = heroContent.videoSources.length;
-const heroPosterSrc = `${assetBasePath}${heroContent.posterSrc}`;
 
 type VideoLayer = {
   ready: boolean;
@@ -40,11 +39,24 @@ export function Hero() {
   const fallbackTimerRef = useRef<number | null>(null);
 
   const timing = heroContent.timing;
+  const readability = heroContent.readability;
   const contentVisible = prefersReducedMotion || showContent;
   const transitionDuration = timing.transitionDurationMs;
   const displayDuration = timing.displayDurationMs;
   const transitionLeadTime = Math.max(displayDuration - transitionDuration, 0);
-
+  const localOverlayPrimaryColor = `rgba(7, 16, 28, ${readability.localOverlayOpacity})`;
+  const localOverlaySecondaryColor = `rgba(7, 16, 28, ${Math.max(
+    readability.localOverlayOpacity - 0.04,
+    0.08,
+  )})`;
+  const localOverlayTertiaryColor = `rgba(7, 16, 28, ${Math.max(
+    readability.localOverlayOpacity - 0.1,
+    0.03,
+  )})`;
+  const localOverlayFeatherColor = `rgba(7, 16, 28, ${Math.max(
+    readability.localOverlayOpacity - 0.14,
+    0.01,
+  )})`;
   useEffect(() => {
     activeLayerIndexRef.current = activeLayerIndex;
     isTransitioningRef.current = isTransitioning;
@@ -59,10 +71,10 @@ export function Hero() {
 
     const timer = window.setTimeout(() => {
       setShowContent(true);
-    }, timing.titleDelayMs);
+    }, timing.introDelayMs);
 
     return () => window.clearTimeout(timer);
-  }, [prefersReducedMotion, timing.titleDelayMs]);
+  }, [prefersReducedMotion, timing.introDelayMs]);
 
   useEffect(() => {
     if (videoReady) {
@@ -254,18 +266,15 @@ export function Hero() {
 
   const sharedAnimation = {
     initial: prefersReducedMotion
-      ? { opacity: 1, y: 0 }
-      : { opacity: 0, y: timing.riseDistancePx },
-    animate: contentVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: timing.riseDistancePx },
+      ? { opacity: 1, y: 0, filter: "blur(0px)" }
+      : { opacity: 0, y: timing.introTranslateY, filter: "blur(6px)" },
+    animate: contentVisible
+      ? { opacity: 1, y: 0, filter: "blur(0px)" }
+      : { opacity: 0, y: timing.introTranslateY, filter: "blur(6px)" },
   };
 
   return (
     <section id="top" className="relative min-h-screen overflow-hidden bg-foreground text-white">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroPosterSrc})` }}
-      />
-
       {!useFallback && (
         <>
           {layers.map((layer, layerIndex) => {
@@ -290,7 +299,6 @@ export function Hero() {
                   transition: `opacity ${transitionDuration}ms ease-in-out`,
                 }}
                 src={`${assetBasePath}${heroContent.videoSources[layer.sourceIndex]}`}
-                poster={heroPosterSrc}
                 autoPlay={isActiveLayer}
                 muted
                 playsInline
@@ -326,10 +334,19 @@ export function Hero() {
       <div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(90deg, rgba(10, 22, 38, ${timing.overlayOpacity + 0.08}) 0%, rgba(10, 22, 38, ${timing.overlayOpacity}) 38%, rgba(10, 22, 38, ${Math.max(
-            timing.overlayOpacity - 0.06,
-            0.12,
-          )}) 100%)`,
+          background: `linear-gradient(180deg, rgba(8, 18, 31, ${readability.globalOverlayOpacity + 0.04}) 0%, rgba(8, 18, 31, ${readability.globalOverlayOpacity}) 36%, rgba(8, 18, 31, ${readability.globalOverlayOpacity + 0.02}) 100%)`,
+        }}
+      />
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[1]"
+        style={{
+          width: readability.localOverlayWidth,
+          height: readability.localOverlayHeight,
+          background: `linear-gradient(90deg, ${localOverlayPrimaryColor} 0%, ${localOverlaySecondaryColor} ${readability.localOverlayGradientStops.dense}, ${localOverlayTertiaryColor} ${readability.localOverlayGradientStops.medium}, ${localOverlayFeatherColor} ${readability.localOverlayGradientStops.soft}, rgba(7, 16, 28, 0) ${readability.localOverlayGradientStops.fade}), radial-gradient(140% 120% at -8% 50%, ${localOverlaySecondaryColor} 0%, ${localOverlayTertiaryColor} ${readability.localOverlayGradientStops.medium}, rgba(7, 16, 28, 0.02) ${readability.localOverlayGradientStops.fade}, rgba(7, 16, 28, 0) 100%), linear-gradient(180deg, rgba(7, 16, 28, 0.04) 0%, rgba(7, 16, 28, 0.015) 22%, rgba(7, 16, 28, 0.01) 54%, rgba(7, 16, 28, 0.02) 100%)`,
+          filter: `blur(${readability.localOverlayBlur}px)`,
+          opacity: 0.9,
         }}
       />
 
@@ -357,73 +374,50 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 flex min-h-screen items-center">
-        <div className="section-shell grid w-full lg:grid-cols-[minmax(0,680px)_1fr]">
-          <div className="pt-24 pb-18 md:pt-32 md:pb-24 lg:pt-28">
+        <div className="section-shell flex w-full items-center justify-start">
+          <div className="relative w-full max-w-[900px] pt-28 pb-20 md:pt-34 md:pb-24 lg:ml-[3vw]">
             <motion.div
               {...sharedAnimation}
               transition={baseTransition}
-              className="max-w-4xl"
+              className="relative max-w-[780px]"
             >
-              <p className="mb-5 text-sm font-semibold uppercase tracking-[0.24em] text-white/72">
-                Dataset Project Website
-              </p>
-              <h1 className="max-w-2xl font-serif text-5xl leading-[0.92] text-white sm:text-6xl md:text-7xl">
+              <h1
+                className="max-w-2xl font-serif text-[4.5rem] leading-[0.84] text-white sm:text-[5.25rem] md:text-[6.75rem] lg:text-[7.6rem]"
+                style={{ textShadow: readability.titleTextShadow }}
+              >
                 {heroContent.title}
               </h1>
-              <p className="mt-6 max-w-2xl text-xl leading-8 text-white/86 md:text-2xl md:leading-9">
+
+              <p
+                className="mt-6 max-w-[30ch] text-[1.24rem] leading-8 text-white/88 md:text-[1.88rem] md:leading-10"
+                style={{ textShadow: readability.subtitleTextShadow }}
+              >
                 {heroContent.subtitle}
               </p>
-            </motion.div>
 
-            <motion.p
-              {...sharedAnimation}
-              transition={{
-                ...baseTransition,
-                delay: prefersReducedMotion
-                  ? 0
-                  : (timing.badgeDelayMs - timing.titleDelayMs) / 1000,
-              }}
-              className="mt-8 max-w-xl text-base leading-8 text-white/72 md:text-lg"
-            >
-              {heroContent.description}
-            </motion.p>
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                {heroContent.keywords.map((keyword) => (
+                  <span
+                    key={keyword}
+                    className="inline-flex items-center rounded-full border border-white/14 bg-white/[0.05] px-3 py-1.5 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-white/80"
+                    style={{ textShadow: readability.bodyTextShadow }}
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
 
-            <motion.div
-              {...sharedAnimation}
-              transition={{
-                ...baseTransition,
-                delay: prefersReducedMotion
-                  ? 0
-                  : (timing.badgeDelayMs - timing.titleDelayMs) / 1000,
-              }}
-              className="mt-8 flex flex-wrap gap-3"
-            >
-              {heroContent.keywords.map((keyword) => (
-                <span key={keyword} className="chip">
-                  {keyword}
-                </span>
-              ))}
-            </motion.div>
-
-            <motion.div
-              {...sharedAnimation}
-              transition={{
-                ...baseTransition,
-                delay: prefersReducedMotion
-                  ? 0
-                  : (timing.ctaDelayMs - timing.titleDelayMs) / 1000,
-              }}
-              className="mt-10 flex flex-wrap gap-3"
-            >
-              {heroContent.ctas.map((cta) => (
-                <ActionLink
-                  key={cta.label}
-                  label={cta.label}
-                  href={cta.href}
-                  variant={cta.variant}
-                  className="min-w-[148px]"
-                />
-              ))}
+              <div className="mt-7 flex flex-wrap gap-3.5">
+                {heroContent.ctas.map((cta) => (
+                  <ActionLink
+                    key={cta.label}
+                    label={cta.label}
+                    href={cta.href}
+                    variant={cta.variant}
+                    className="min-w-[160px] px-6 py-3.5 text-[0.95rem]"
+                  />
+                ))}
+              </div>
             </motion.div>
           </div>
         </div>
@@ -441,11 +435,9 @@ export function Hero() {
         }
         transition={{
           ...baseTransition,
-          delay: prefersReducedMotion
-            ? 0
-            : (timing.scrollHintDelayMs - timing.titleDelayMs) / 1000,
+          delay: prefersReducedMotion ? 0 : (timing.scrollHintDelayMs - timing.introDelayMs) / 1000,
         }}
-        className="absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit flex-col items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/58 transition-colors hover:text-white/85"
+        className="absolute inset-x-0 bottom-8 z-10 mx-auto flex w-fit flex-col items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/50 transition-colors hover:text-white/72"
       >
         <span>{heroContent.scrollLabel}</span>
         <ChevronDown className="h-4 w-4" />
