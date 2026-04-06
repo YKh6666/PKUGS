@@ -300,6 +300,7 @@ export function Hero() {
                 }}
                 src={`${assetBasePath}${heroContent.videoSources[layer.sourceIndex]}`}
                 autoPlay={isActiveLayer}
+                loop={isActiveLayer && !isTransitioning}
                 muted
                 playsInline
                 preload="auto"
@@ -366,8 +367,8 @@ export function Hero() {
             <a href="#benchmark" className="transition-colors hover:text-white">
               Benchmark
             </a>
-            <a href="#resources" className="transition-colors hover:text-white">
-              Resources
+            <a href="#download" className="transition-colors hover:text-white">
+              Download
             </a>
           </nav>
         </div>

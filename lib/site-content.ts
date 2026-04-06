@@ -30,6 +30,7 @@ export type HeroContent = {
   timing: {
     displayDurationMs: number;
     transitionDurationMs: number;
+    decodeWarmupMs: number;
     fallbackDelayMs: number;
     introDelayMs: number;
     scrollHintDelayMs: number;
@@ -40,7 +41,7 @@ export type HeroContent = {
 
 export type StatItem = {
   title: string;
-  icon: "map" | "frames" | "route" | "poi" | "storage" | "coverage";
+  icon: "map" | "frames" | "route" | "coverage";
   value: string;
 };
 
@@ -70,13 +71,37 @@ export type BenchmarkItem = {
   description: string;
 };
 
-export type ResourceCard = {
-  title: string;
-  description: string;
-  actionLabel?: string;
+export type BenchmarkSceneKey = "library" | "velodrome" | "forum" | "average";
+
+export type BenchmarkMeasuredSceneKey = Exclude<BenchmarkSceneKey, "average">;
+
+export type BenchmarkMetricKey = "psnr" | "ssim" | "lpips" | "sizeMb";
+
+export type BenchmarkSceneMetrics = {
+  psnr: number | null;
+  ssim: number | null;
+  lpips: number | null;
+  sizeMb: number | null;
+};
+
+export type BenchmarkScene = {
+  key: BenchmarkSceneKey;
+  label: string;
+};
+
+export type BenchmarkMethodRow = {
+  method: string;
   href?: string;
-  external?: boolean;
-  comingSoon?: boolean;
+  rank: number;
+  scenes: Record<BenchmarkMeasuredSceneKey, BenchmarkSceneMetrics> &
+    Partial<Record<"average", BenchmarkSceneMetrics>>;
+};
+
+export type ResourceDownloadRow = {
+  category: string;
+  rawVideosHref: string;
+  colmapHref?: string;
+  reconstructionHref?: string;
 };
 
 export type FooterContent = {
@@ -107,12 +132,12 @@ export type FooterContent = {
 export const heroContent: HeroContent = {
   title: "PKU-GS",
   subtitle:
-    "A Gaussian Splatting Compression Dataset for Large-Scale Scene Modeling with UAVs",
+    "A Large-Scale UAV-Based Real-World Dataset and Benchmark for 3D Gaussian Splatting Compression",
   keywords: ["Large-Scale", "UAV Capture", "Compression Benchmark"],
   ctas: [
     { label: "Explore Scenes", href: "#scenes", variant: "primary" },
     { label: "Benchmark", href: "#benchmark", variant: "secondary" },
-    { label: "Download", href: "#resources", variant: "secondary" },
+    { label: "Download", href: "#download", variant: "secondary" },
   ],
   videoSources: [
     "/videos/dji_20260109164429_0032_d-1080p.mp4",
@@ -151,6 +176,7 @@ export const heroContent: HeroContent = {
   timing: {
     displayDurationMs: 7000,
     transitionDurationMs: 1000,
+    decodeWarmupMs: 220,
     fallbackDelayMs: 4000,
     introDelayMs: 1820,
     scrollHintDelayMs: 2620,
@@ -171,19 +197,9 @@ export const stats: StatItem[] = [
     icon: "frames",
   },
   {
-    title: "Flight Distance",
+    title: "Distance",
     value: "1500+ km",
     icon: "route",
-  },
-  {
-    title: "POI Types",
-    value: "7",
-    icon: "poi",
-  },
-  {
-    title: "Total Data Size",
-    value: "20 TB",
-    icon: "storage",
   },
   {
     title: "Coverage",
@@ -225,7 +241,7 @@ export const representativeScenes: SceneItem[] = [
     title: "Heritage Courtyard Block",
     category: "Historic Architecture",
     tags: ["Dense Rooflines", "Oblique UAV", "Fine Detail"],
-    image: "/images/show/v3_0018.png",
+    image: "/images/show/v3_0018.jpg",
     alt: "A UAV view over a dense heritage courtyard block with detailed roof structures.",
     description:
       "Compact roof geometry, repeated structural motifs, and narrow corridors provide challenging high-frequency detail.",
@@ -235,7 +251,7 @@ export const representativeScenes: SceneItem[] = [
     title: "Campus Library Tower",
     category: "Institutional Scene",
     tags: ["Campus", "Vegetation", "Facade Geometry"],
-    image: "/images/show/v3_0078.png",
+    image: "/images/show/v3_0078.jpg",
     alt: "A UAV view of a campus library tower surrounded by trees and institutional buildings.",
     description:
       "Tall facade structure and surrounding tree canopy create a mix of planar surfaces, depth changes, and partial occlusion.",
@@ -245,7 +261,7 @@ export const representativeScenes: SceneItem[] = [
     title: "Open-Air Market Edge",
     category: "Urban Commercial",
     tags: ["Parking Area", "Street Clutter", "Signage"],
-    image: "/images/show/v3_0100.png",
+    image: "/images/show/v3_0100.jpg",
     alt: "A UAV view of a market edge with parking lots, storefronts, and rich visual clutter.",
     description:
       "Ground vehicles, signage, open paved areas, and irregular storefront boundaries increase scene heterogeneity.",
@@ -255,7 +271,7 @@ export const representativeScenes: SceneItem[] = [
     title: "Waterside Academic Complex",
     category: "Large-Scale Campus",
     tags: ["Water Boundary", "Long Span", "Multi-Level"],
-    image: "/images/show/v4_0001.png",
+    image: "/images/show/v4_0001.jpg",
     alt: "A UAV view of a large academic complex positioned above a waterside boundary.",
     description:
       "Extended structural spans and water-adjacent geometry are useful for evaluating large-scene consistency and compression.",
@@ -265,7 +281,7 @@ export const representativeScenes: SceneItem[] = [
     title: "Research Innovation Campus",
     category: "Contemporary Architecture",
     tags: ["Modern Facades", "Road Network", "Layered Volumes"],
-    image: "/images/show/v4_0168.png",
+    image: "/images/show/v4_0168.jpg",
     alt: "A UAV view of a contemporary campus with layered building volumes and road networks.",
     description:
       "Contemporary glass-heavy architecture and layered building massing provide a complementary modern urban capture case.",
@@ -318,34 +334,216 @@ export const benchmarkItems: BenchmarkItem[] = [
   },
 ];
 
-export const resourceCards: ResourceCard[] = [
+export const benchmarkScenes: BenchmarkScene[] = [
+  { key: "library", label: "1-23 (Library)" },
+  { key: "velodrome", label: "1-42 (Velodrome)" },
+  { key: "forum", label: "1-71 (Forum)" },
+  { key: "average", label: "Average (20 scene)" },
+];
+
+export const benchmarkMethodRows: BenchmarkMethodRow[] = [
   {
-    title: "Dataset",
-    description: "Release package, metadata, and access notes for the public benchmark-facing split.",
-    actionLabel: "Coming Soon",
-    comingSoon: true,
+    method: "HAC++ [8]",
+    rank: 2.5,
+    scenes: {
+      library: { psnr: 26.421, ssim: 0.86, lpips: 0.173, sizeMb: 19.976 },
+      velodrome: { psnr: 27.824, ssim: 0.831, lpips: 0.231, sizeMb: 7.218 },
+      forum: { psnr: 28.961, ssim: 0.895, lpips: 0.144, sizeMb: 15.226 },
+    },
   },
   {
-    title: "Code",
-    description: "Project codebase, data loading utilities, and reference scripts for dataset usage.",
-    actionLabel: "Coming Soon",
-    comingSoon: true,
+    method: "PC-GS [5]",
+    rank: 6.667,
+    scenes: {
+      library: { psnr: 24.245, ssim: 0.757, lpips: 0.298, sizeMb: 13.737 },
+      velodrome: { psnr: 25.791, ssim: 0.748, lpips: 0.353, sizeMb: 4.891 },
+      forum: { psnr: 26.997, ssim: 0.836, lpips: 0.247, sizeMb: 11.044 },
+    },
   },
   {
-    title: "Benchmark",
-    description: "Benchmark protocol, evaluation conventions, and future result tables for comparison.",
-    actionLabel: "Coming Soon",
-    comingSoon: true,
+    method: "Contextgs [37]",
+    rank: 6.667,
+    scenes: {
+      library: { psnr: 25.082, ssim: 0.794, lpips: 0.256, sizeMb: 29.602 },
+      velodrome: { psnr: 27.056, ssim: 0.802, lpips: 0.287, sizeMb: 10.721 },
+      forum: { psnr: 27.465, ssim: 0.851, lpips: 0.228, sizeMb: 19.089 },
+    },
   },
   {
-    title: "Citation",
-    description: "BibTeX entry prepared for direct copy into project pages, manuscripts, and references.",
-    actionLabel: "Copy BibTeX",
+    method: "HAC [7]",
+    rank: 7.333,
+    scenes: {
+      library: { psnr: 24.547, ssim: 0.769, lpips: 0.286, sizeMb: 25.35 },
+      velodrome: { psnr: 26.216, ssim: 0.766, lpips: 0.333, sizeMb: 8.094 },
+      forum: { psnr: 27.299, ssim: 0.843, lpips: 0.236, sizeMb: 19.453 },
+    },
+  },
+  {
+    method: "CAT [44]",
+    rank: 8,
+    scenes: {
+      library: { psnr: 23.686, ssim: 0.728, lpips: 0.275, sizeMb: 14.402 },
+      velodrome: { psnr: 25.694, ssim: 0.735, lpips: 0.315, sizeMb: 5.037 },
+      forum: { psnr: 26.913, ssim: 0.828, lpips: 0.194, sizeMb: 11.308 },
+    },
+  },
+  {
+    method: "Scaffold-GS [22]",
+    rank: 9.167,
+    scenes: {
+      library: { psnr: 25.282, ssim: 0.813, lpips: 0.229, sizeMb: 287.701 },
+      velodrome: { psnr: 28.609, ssim: 0.865, lpips: 0.206, sizeMb: 253.848 },
+      forum: { psnr: 27.848, ssim: 0.867, lpips: 0.198, sizeMb: 254.261 },
+    },
+  },
+  {
+    method: "RDO-Gaussian [34]",
+    rank: 9.667,
+    scenes: {
+      library: { psnr: 23.617, ssim: 0.737, lpips: 0.31, sizeMb: 14.056 },
+      velodrome: { psnr: 24.851, ssim: 0.717, lpips: 0.391, sizeMb: 5.413 },
+      forum: { psnr: 25.606, ssim: 0.779, lpips: 0.324, sizeMb: 6.653 },
+    },
+  },
+  {
+    method: "EAGLES [13]",
+    rank: 9.833,
+    scenes: {
+      library: { psnr: 24.641, ssim: 0.784, lpips: 0.265, sizeMb: 93.141 },
+      velodrome: { psnr: 26.919, ssim: 0.808, lpips: 0.287, sizeMb: 52.729 },
+      forum: { psnr: 27.096, ssim: 0.84, lpips: 0.242, sizeMb: 57.771 },
+    },
+  },
+  {
+    method: "TC-GS [36]",
+    rank: 10,
+    scenes: {
+      library: { psnr: 23.718, ssim: 0.721, lpips: 0.342, sizeMb: 17.948 },
+      velodrome: { psnr: 26.813, ssim: 0.782, lpips: 0.323, sizeMb: 17.257 },
+      forum: { psnr: 26.317, ssim: 0.805, lpips: 0.297, sizeMb: 13.906 },
+    },
+  },
+  {
+    method: "Reduced-3DGS [27]",
+    rank: 10.167,
+    scenes: {
+      library: { psnr: 25.349, ssim: 0.81, lpips: 0.238, sizeMb: 325.088 },
+      velodrome: { psnr: 27.362, ssim: 0.816, lpips: 0.277, sizeMb: 151.595 },
+      forum: { psnr: 27.415, ssim: 0.85, lpips: 0.226, sizeMb: 188.577 },
+    },
+  },
+  {
+    method: "3DGS [15]",
+    rank: 10.833,
+    scenes: {
+      library: { psnr: 25.445, ssim: 0.813, lpips: 0.234, sizeMb: 1095.68 },
+      velodrome: { psnr: 28.403, ssim: 0.851, lpips: 0.229, sizeMb: 531.83 },
+      forum: { psnr: 27.613, ssim: 0.855, lpips: 0.219, sizeMb: 634.02 },
+    },
+  },
+  {
+    method: "Gsplat [42]",
+    rank: 11.5,
+    scenes: {
+      library: { psnr: 25.355, ssim: 0.81, lpips: 0.219, sizeMb: 1208.32 },
+      velodrome: { psnr: 28.285, ssim: 0.847, lpips: 0.216, sizeMb: 601 },
+      forum: { psnr: 27.423, ssim: 0.849, lpips: 0.213, sizeMb: 602 },
+    },
+  },
+  {
+    method: "Compact3dgs [17]",
+    rank: 11.667,
+    scenes: {
+      library: { psnr: 24.033, ssim: 0.763, lpips: 0.285, sizeMb: 66.946 },
+      velodrome: { psnr: 26.079, ssim: 0.774, lpips: 0.326, sizeMb: 45.829 },
+      forum: { psnr: 26.132, ssim: 0.809, lpips: 0.28, sizeMb: 44.641 },
+    },
+  },
+  {
+    method: "FC-GS [6]",
+    rank: 11.667,
+    scenes: {
+      library: { psnr: 19.383, ssim: 0.669, lpips: 0.2, sizeMb: 54.895 },
+      velodrome: { psnr: 21.244, ssim: 0.711, lpips: 0.212, sizeMb: 32.313 },
+      forum: { psnr: 21.725, ssim: 0.74, lpips: 0.201, sizeMb: 30.955 },
+    },
+  },
+  {
+    method: "Compact3d [17]",
+    rank: 11.833,
+    scenes: {
+      library: { psnr: 23.93, ssim: 0.752, lpips: 0.305, sizeMb: 28.85 },
+      velodrome: { psnr: 25.731, ssim: 0.759, lpips: 0.354, sizeMb: 16.71 },
+      forum: { psnr: 26.123, ssim: 0.806, lpips: 0.296, sizeMb: 16.79 },
+    },
+  },
+  {
+    method: "Octree-GS [29]",
+    rank: 12.333,
+    scenes: {
+      library: { psnr: 23.048, ssim: 0.706, lpips: 0.339, sizeMb: 79.979 },
+      velodrome: { psnr: 26.623, ssim: 0.793, lpips: 0.292, sizeMb: 80.002 },
+      forum: { psnr: 26.631, ssim: 0.831, lpips: 0.239, sizeMb: 114.507 },
+    },
+  },
+  {
+    method: "Minisplatting [11]",
+    rank: 12.5,
+    scenes: {
+      library: { psnr: 23.428, ssim: 0.727, lpips: 0.327, sizeMb: 27.773 },
+      velodrome: { psnr: 26.194, ssim: 0.783, lpips: 0.31, sizeMb: 24.421 },
+      forum: { psnr: 25.967, ssim: 0.805, lpips: 0.278, sizeMb: 21.256 },
+    },
+  },
+  {
+    method: "Lightgaussian [10]",
+    rank: 13.833,
+    scenes: {
+      library: { psnr: 24.32, ssim: 0.764, lpips: 0.292, sizeMb: 392.138 },
+      velodrome: { psnr: 26.259, ssim: 0.774, lpips: 0.34, sizeMb: 175.644 },
+      forum: { psnr: 26.575, ssim: 0.819, lpips: 0.276, sizeMb: 264.895 },
+    },
+  },
+  {
+    method: "Gaussianspa [46]",
+    rank: 13.833,
+    scenes: {
+      library: { psnr: 23.443, ssim: 0.723, lpips: 0.334, sizeMb: 106.796 },
+      velodrome: { psnr: 26.651, ssim: 0.79, lpips: 0.304, sizeMb: 101.522 },
+      forum: { psnr: 26.205, ssim: 0.81, lpips: 0.274, sizeMb: 106.681 },
+    },
+  },
+];
+
+export const resourceDownloadRows: ResourceDownloadRow[] = [
+  {
+    category: "Standalone Buildings",
+    rawVideosHref: "https://www.alipan.com/s/RL28QS9b7Pz",
+  },
+  {
+    category: "Architecture Complex",
+    rawVideosHref: "https://www.alipan.com/s/gaGuo9fghoC",
+  },
+  {
+    category: "Sports Field",
+    rawVideosHref: "https://www.alipan.com/s/KHk44UWvhZL",
+  },
+  {
+    category: "Natural Landscape",
+    rawVideosHref: "https://www.alipan.com/s/K981aY9Nfmu",
+  },
+  {
+    category: "Sculpture",
+    rawVideosHref: "https://www.alipan.com/s/BSnVsUv6zCq",
+  },
+  {
+    category: "Waterfront Bridges",
+    rawVideosHref: "https://www.alipan.com/s/dNGoZpwR3AX",
   },
 ];
 
 export const citation = `@misc{pkugs2026,
-  title        = {PKU-GS: A Gaussian Splatting Compression Dataset for Large-Scale Scene Modeling with UAVs},
+  title        = {PKU-GS: A Large-Scale UAV-Based Real-World Dataset and Benchmark for 3D Gaussian Splatting Compression},
   author       = {Author List},
   year         = {2026},
   note         = {Project website and dataset release},
