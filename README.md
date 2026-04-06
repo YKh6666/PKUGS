@@ -3,7 +3,7 @@
 Academic project website for:
 
 **PKU-GS**  
-**A Gaussian Splatting Compression Dataset for Large-Scale Scene Modeling with UAVs**
+**A Large-Scale UAV-Based Real-World Dataset and Benchmark for 3D Gaussian Splatting Compression**
 
 ## Stack
 

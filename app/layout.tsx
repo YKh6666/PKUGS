@@ -24,7 +24,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "PKU-GS",
   description:
-    "A Gaussian Splatting Compression Dataset for Large-Scale Scene Modeling with UAVs.",
+    "A Large-Scale UAV-Based Real-World Dataset and Benchmark for 3D Gaussian Splatting Compression.",
 };
 
 export default function RootLayout({

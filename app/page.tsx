@@ -1,8 +1,8 @@
 import { BenchmarkSection } from "@/components/BenchmarkSection";
+import { DownloadSection } from "@/components/DownloadSection";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { PipelineSection } from "@/components/PipelineSection";
-import { ResourcesSection } from "@/components/ResourcesSection";
 import { ScenesGallery } from "@/components/ScenesGallery";
 import { StatsSection } from "@/components/StatsSection";
 import { WhySection } from "@/components/WhySection";
@@ -16,7 +16,7 @@ export default function Home() {
       <ScenesGallery />
       <PipelineSection />
       <BenchmarkSection />
-      <ResourcesSection />
+      <DownloadSection />
       <Footer />
     </main>
   );

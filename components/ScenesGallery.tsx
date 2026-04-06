@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { SectionIntro } from "@/components/SectionIntro";
+import { withBasePath } from "@/lib/asset-path";
 import { representativeScenes } from "@/lib/site-content";
 
 export function ScenesGallery() {
@@ -18,7 +19,7 @@ export function ScenesGallery() {
             <article key={scene.id} className="surface-card overflow-hidden">
               <div className="group relative aspect-[16/9] overflow-hidden">
                 <Image
-                  src={scene.image}
+                  src={withBasePath(scene.image)}
                   alt={scene.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
