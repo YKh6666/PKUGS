@@ -4,9 +4,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ActionLink } from "@/components/ActionLink";
+import { withBasePath } from "@/lib/asset-path";
 import { heroContent } from "@/lib/site-content";
 
-const assetBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const totalHeroVideos = heroContent.videoSources.length;
 
 type VideoLayer = {
@@ -298,7 +298,7 @@ export function Hero() {
                   opacity: layerOpacity,
                   transition: `opacity ${transitionDuration}ms ease-in-out`,
                 }}
-                src={`${assetBasePath}${heroContent.videoSources[layer.sourceIndex]}`}
+                src={withBasePath(heroContent.videoSources[layer.sourceIndex])}
                 autoPlay={isActiveLayer}
                 loop={isActiveLayer && !isTransitioning}
                 muted

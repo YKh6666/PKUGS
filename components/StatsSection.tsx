@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Compass, Map, MoveDiagonal, Route } from "lucide-react";
+import { withBasePath } from "@/lib/asset-path";
 import { SectionIntro } from "@/components/SectionIntro";
 import { stats } from "@/lib/site-content";
 
@@ -27,7 +28,7 @@ export function StatsSection() {
               <div className="relative flex flex-1 items-center justify-center px-1 pb-1 pt-1 md:px-2">
                 <div className="absolute inset-x-5 inset-y-8 rounded-full bg-[radial-gradient(circle,rgba(47,128,237,0.1),transparent_68%)] blur-3xl" />
                 <Image
-                  src="/images/article/circle.png"
+                  src={withBasePath("/images/article/circle.png")}
                   alt="Donut chart visualizing the dataset composition summary."
                   width={1248}
                   height={1044}
